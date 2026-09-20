@@ -5,7 +5,33 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      //Elements
+      const sendButton = document.querySelector('#send');
+      const responsePage = document.querySelector('#page');
+      const responseType = document.querySelector('#type');
 
+      //Fetch
+      const fetchURL = (url) => {
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.error('ERROR: ', error);
+          });
+      };
+    
+      const handleSend = () => {
+        //let url = `${responsePage.value}+${responseType.value}`;
+        let url = `${responsePage.value}`;
+        console.log(url);
+        fetchURL(url);
+      };
+    
+      sendButton.addEventListener('click',handleSend);
+    });
   </script>
 </head>
 <body>
