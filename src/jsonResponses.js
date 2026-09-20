@@ -1,92 +1,12 @@
+const { respondHeader, statusCodes } = require('./responsesUtils');
+
 const respondJSON = (request,response,status, object) => {
     const content = JSON.stringify(object);
 
-    const headers = {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(content, 'utf8')
-    };
+    const contentType = 'application/json';
+    //console.log(contentType);
 
-    response.writeHead(status, headers);
-
-    if(request.method !== 'HEAD') {
-        response.write(content);
-    };
-
-    response.end();
+    respondHeader(request,response,status,content,contentType);
 }
 
-// Status Codes
-const success = (request, response) => {
-    respondStatus(request, response, 200, 
-        'This is a successful response');
-}
-
-const notFound = (request,response) => {
-    respondStatus(request, response, 404, 
-        'Missing valid query parameter',
-        'notFound');
-}
-
-const badRequest = (request,response) => {
-    queryBasedResponse(request,response,
-        'valid', 'true',
-        200,'This request has the required parameters',
-        400,'Missing valid query parameter set to true','badRequest');
-}
-
-const unauthorized = (request,response) => {
-    queryBasedResponse(request,response,
-        'loggedIn', 'yes',
-        200,'This request has the required parameters',
-        400,'Missing valid query parameter set to true','unauthorized');
-}
-
-const forbidden = (request, response) => {
-    respondStatus(request, response, 403, 
-        'This is a forbidden response');
-}
-
-const internal = (request, response) => {
-    respondStatus(request, response, 500, 
-        'This is an internal response');
-}
-
-const notImplemented = (request, response) => {
-    respondStatus(request, response, 501, 
-        'This is a response not yet implemented');
-}
-
-// Fucntions to determine what status code does
-const respondStatus = (request, response, status, message, id=null) => {
-    const responseJSON = {message: message};
-    
-    // Check for id
-    if(id !== null)
-        responseJSON.id = id;
-
-    respondJSON(request,response,status,responseJSON);
-}
-
-const queryBasedResponse = (request, response, 
-    queryParam, wantedValue,
-    gStatus, gMessage, bStatus, bMessage, id) => {
-
-    // Check for validity
-    if(request.query[queryParam] !== wantedValue || !request.query[queryParam]){
-        respondStatus(request,response,bStatus,bMessage,id);
-        return;
-    }
-
-    respondStatus(request,response,gStatus,gMessage);
-}
-
-
-module.exports = {
-    success,
-    notFound,
-    badRequest,
-    unauthorized,
-    forbidden,
-    internal,
-    notImplemented
-}
+module.exports = statusCodes(respondJSON);

@@ -25,6 +25,7 @@
     "globals": "^17.12.0"
   },
   "dependencies": {
+    "fast-xml-parser": "^5.11.1",
     "jstoxml": "^7.1.1"
   }
 }

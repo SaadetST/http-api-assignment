@@ -5,6 +5,7 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
+    /*
     document.addEventListener('DOMContentLoaded', () => {
       //Elements
       const sendButton = document.querySelector('#send');
@@ -13,13 +14,27 @@
 
       //Fetch
       const fetchURL = (url) => {
-        fetch(url)
-          .then((response) => response.json())
-          .then((data) => {
+        fetch(url, {
+          headers: { 'Accept': 'application/json' }
+        })
+          .then((response) => {
+            if(!response.ok) {
+              throw Error(`HTTP error! Status: ${response.status}`);
+            }
+              console.log(response);
+              return response.text();
+          })
+          //defaults to xml
+          .then((text) => {
+            const xml = new DOMParser().parseFromString(text, 'application/xml');
+            const data = { response: xml.querySelector('response').textContent };
+
             console.log(data);
+            window.location.href = '/success';
+
           })
           .catch((error) => {
-            console.error('ERROR: ', error);
+            console.error('FETCH ERROR: ', error);
           });
       };
     
@@ -29,9 +44,72 @@
         console.log(url);
         fetchURL(url);
       };
+
+      xmlToJson = (response) => {
+
+      }
     
       sendButton.addEventListener('click',handleSend);
     });
+    */
+    const handleResponse = async (response) => {
+      const content = document.querySelector('#content');
+      const contentType = response.headers.get('Content-Type');
+      const rawTxt = await response.text();
+
+      console.log(rawTxt);
+      
+      console.log(response.url);
+      //console.log(contentType);
+
+      let message;
+      if (contentType.includes('text/xml')) {
+        const xml = new DOMParser().parseFromString(rawTxt, 'text/xml');
+        message = xml.querySelector('message').textContent;
+        
+        //console.log("xml: " + message);
+      } 
+      else if (contentType.includes('application/json')) {
+        const obj = JSON.parse(rawTxt);
+        message = obj.message;
+        //console.log("json: " + message);
+      }
+      else { message = 'OOPS' };
+
+      const pageSelect = document.querySelector('#page');
+      const selectedText = pageSelect.selectedOptions[0].textContent;
+      
+      content.innerHTML = '';
+      content.innerHTML += `<h1>${selectedText}</h1>`;
+      content.innerHTML += `<p>Message: ${message}</p>`;
+    };
+
+    const sendPost = async () => {
+      //const top = document.querySelector('#top');
+      const url = document.querySelector('#page').value;
+      const dataType = document.querySelector('#type').value;
+
+      //console.log(url);
+      //console.log(dataType);
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': dataType,
+        },
+      });
+
+      //console.log([...response.headers.entries()]);
+
+      await handleResponse(response);
+    };
+
+    const init = () => {
+      const sendButton = document.querySelector('#send');
+      sendButton.addEventListener('click', sendPost);
+    };
+
+    window.onload = init;
   </script>
 </head>
 <body>

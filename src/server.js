@@ -4,9 +4,12 @@
 // ✅ make a function that works /success / notFOund
 // ✅ convert the function to dynamic
 // ✅ function that takes in ?_____=boolen in url
-// add an xml version to the functions
-// fetch function WORK with button
-// 404 page
+// ✅ add an xml version to the functions
+// ✅ responsesUtils.js to stick to DRY (connects to xml n json responses)
+// ✅ fetch function WORK with button
+// ✅ print raw to console before parse
+// ✅ JSON default
+// 404 page notFound
 // double check req rq
 
 
@@ -22,7 +25,7 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 //const sendButton = document.querySelector('#send');
 
 //sendButton.addEventListener('click', handleSend);
-
+/*
 const urlStruct = {
     '/': htmlHandler.getIndex,
     '/style.css': htmlHandler.getCSS,
@@ -31,22 +34,23 @@ const urlStruct = {
     '/successXML': xmlHandler.success,
     
     '/badRequest': jsonHandler.badRequest,
-    '/badRequestXML': xmlHandler.badRequest,
+    //'/badRequestXML': xmlHandler.badRequest,
     
     '/unauthorized': jsonHandler.unauthorized,
-    '/unauthorizedXML': xmlHandler.unauthorized,
+    //'/unauthorizedXML': xmlHandler.unauthorized,
     
     '/forbidden': jsonHandler.forbidden,
-    '/forbiddenXML': xmlHandler.forbidden,
+    //'/forbiddenXML': xmlHandler.forbidden,
     
     '/internal': jsonHandler.internal,
-    '/internalXML': xmlHandler.internal,
+    //'/internalXML': xmlHandler.internal,
     
     '/notImplemented': jsonHandler.notImplemented,
-    '/notImplementedXML': xmlHandler.notImplemented,
+    //'/notImplementedXML': xmlHandler.notImplemented,
     
     notFound: jsonHandler.notFound,
 };
+*/
 
 const onRequest = (request,response) =>{
     const protocol = request.connection.encrypted ? 'https' : 'http';
@@ -54,11 +58,35 @@ const onRequest = (request,response) =>{
     
     request.query = Object.fromEntries(parsedUrl.searchParams);
 
+    const accpetHeaders = request.headers.accept;
+    
+    let typeHandler = jsonHandler;  //Default
+    if(accpetHeaders === 'text/xml')
+    {
+        typeHandler = xmlHandler;
+    }
+
+    const urlHandler = {
+        '/': htmlHandler.getIndex,
+        '/style.css': htmlHandler.getCSS,
+        
+        // switches type
+        '/success': typeHandler.success,
+        '/notFound': typeHandler.notFound,
+        '/badRequest': typeHandler.badRequest,
+        '/unauthorized': typeHandler.unauthorized,
+        '/forbidden': typeHandler.forbidden,
+        '/internal': typeHandler.internal,
+        '/notImplemented': typeHandler.notImplemented,
+    }
+
+    const pathname = parsedUrl.pathname;
+
     //console.log(urlStruct[parsedUrl.pathname]);
-    if(urlStruct[parsedUrl.pathname]) {
-        return urlStruct[parsedUrl.pathname](request, response);
+    if(urlHandler[pathname]) {
+        return urlHandler[pathname](request, response);
     }else{
-        return urlStruct.notFound(request, response);
+        return jsonHandler.notFound(request, response);
     }
 };
 
