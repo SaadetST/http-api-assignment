@@ -1,6 +1,8 @@
-// Functions only called in typeResponses
+// A utils file that is used by the other typeResponses files
+
+// Functions that are only called in typeResponses files
+// Writes a header based on the type of content
 const respondHeader = (request,response,status,content,contentType) => {
-    console.log(contentType);
     const headers = {
         'Content-Type': contentType,
         'Content-Length': Buffer.byteLength(content, 'utf8')
@@ -15,12 +17,13 @@ const respondHeader = (request,response,status,content,contentType) => {
     response.end();
 }
 
-// Status Codes
+// Status Code functions and definitions
+// typeResponse comes from other responses files 
+// status code message styles are based on them
 const statusCodes = (typeResponse) => {
 
     // Fucntions to determine what status code does
     const respondStatus = (request, response, status, message, id=null) => {
-
         const responseJSON = {message: message};
 
         // Check for id
@@ -30,6 +33,7 @@ const statusCodes = (typeResponse) => {
         typeResponse(request,response,status,responseJSON);
     }
 
+    // Checks status code validity if has the parameter
     const queryBasedResponse = ( 
         request, response, 
         queryParam, wantedValue,
@@ -44,6 +48,7 @@ const statusCodes = (typeResponse) => {
         respondStatus(request,response,gStatus,gMessage);
     }
 
+    // Status Code definitions
     const success = (request, response) => {
     respondStatus(request, response, 200, 
         'This is a successful response.');
@@ -91,7 +96,6 @@ const statusCodes = (typeResponse) => {
 }
 
 module.exports = {
-    //for typeReponses
     respondHeader,
     statusCodes
 }

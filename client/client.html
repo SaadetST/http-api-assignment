@@ -5,77 +5,28 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
-    /*
-    document.addEventListener('DOMContentLoaded', () => {
-      //Elements
-      const sendButton = document.querySelector('#send');
-      const responsePage = document.querySelector('#page');
-      const responseType = document.querySelector('#type');
-
-      //Fetch
-      const fetchURL = (url) => {
-        fetch(url, {
-          headers: { 'Accept': 'application/json' }
-        })
-          .then((response) => {
-            if(!response.ok) {
-              throw Error(`HTTP error! Status: ${response.status}`);
-            }
-              console.log(response);
-              return response.text();
-          })
-          //defaults to xml
-          .then((text) => {
-            const xml = new DOMParser().parseFromString(text, 'application/xml');
-            const data = { response: xml.querySelector('response').textContent };
-
-            console.log(data);
-            window.location.href = '/success';
-
-          })
-          .catch((error) => {
-            console.error('FETCH ERROR: ', error);
-          });
-      };
-    
-      const handleSend = () => {
-        //let url = `${responsePage.value}+${responseType.value}`;
-        let url = `${responsePage.value}`;
-        console.log(url);
-        fetchURL(url);
-      };
-
-      xmlToJson = (response) => {
-
-      }
-    
-      sendButton.addEventListener('click',handleSend);
-    });
-    */
+    //Posts the raw data to console 
+    //Parses the message to txt and displays it
     const handleResponse = async (response) => {
-      const content = document.querySelector('#content');
+
+      // Saves content type read in server.js
       const contentType = response.headers.get('Content-Type');
       const rawTxt = await response.text();
-
       console.log(rawTxt);
-      
-      console.log(response.url);
-      //console.log(contentType);
 
+      // Parse method for raw text based content type
       let message;
       if (contentType.includes('text/xml')) {
         const xml = new DOMParser().parseFromString(rawTxt, 'text/xml');
         message = xml.querySelector('message').textContent;
-        
-        //console.log("xml: " + message);
       } 
       else if (contentType.includes('application/json')) {
         const obj = JSON.parse(rawTxt);
         message = obj.message;
-        //console.log("json: " + message);
       }
-      else { message = 'OOPS' };
 
+      // Gets options selected by user to help display message properly
+      const content = document.querySelector('#content');
       const pageSelect = document.querySelector('#page');
       const selectedText = pageSelect.selectedOptions[0].textContent;
       
@@ -84,13 +35,10 @@
       content.innerHTML += `<p>Message: ${message}</p>`;
     };
 
+    // Fetch and read data from server.js based on the options selected by user
     const sendPost = async () => {
-      //const top = document.querySelector('#top');
       const url = document.querySelector('#page').value;
       const dataType = document.querySelector('#type').value;
-
-      //console.log(url);
-      //console.log(dataType);
 
       const response = await fetch(url, {
         method: 'GET',
@@ -98,8 +46,6 @@
           'Accept': dataType,
         },
       });
-
-      //console.log([...response.headers.entries()]);
 
       await handleResponse(response);
     };

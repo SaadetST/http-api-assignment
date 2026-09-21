@@ -1,3 +1,4 @@
+//Responds xml requests
 
 const { toXML } = require('jstoxml');
 const { respondHeader, statusCodes } = require('./responsesUtils');

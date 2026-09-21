@@ -1,26 +1,17 @@
+//Responds html requests
+
 const fs = require('fs');
+const { respondHeader } = require('./responsesUtils');
 
 const index = fs.readFileSync(`${__dirname}/../client/client.html`);
 const css = fs.readFileSync(`${__dirname}/../client/style.css`);
 
+// write the header and the response 
 const getIndex = (request, response) => {
-    response.writeHead(200, {
-        'Content-Type': 'text/html',
-        'Content-Length': Buffer.byteLength(index, 'utf8'),
-    });
-    //console.log(index);
-    response.write(index);
-    response.end();
+    respondHeader(request,response,200,index,'text/html');
 }
-
 const getCSS = (request, response) => {
-    response.writeHead(200, {
-        'Content-Type': 'text/css',
-        'Content-Length': Buffer.byteLength(css, 'utf8'),
-    });
-    //console.log(css);
-    response.write(css);
-    response.end();
+    respondHeader(request,response,200,css,'text/css');
 }
 
 module.exports = {
